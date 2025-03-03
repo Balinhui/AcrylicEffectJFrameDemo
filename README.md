@@ -5,4 +5,4 @@
 
 JNA负责调用WindowsAPI来实现云母效果，接口继承Library，用SetWindowCompositionAttribute方法实现
 
-flatlaf-extras负责添加如右上角控制按钮的图标，图标来自Google [Google Fonts](https://fonts.google.com/icons?selected=Material+Symbols+Outlined:settings_backup_restore:FILL@0;wght@400;GRAD@0;opsz@24&icon.size=24&icon.color=%237a7a7a&icon.platform=web)
+flatlaf-extras负责添加如右上角控制按钮的图标，图标来自Google [Google Fonts](https://fonts.google.com/icons)
