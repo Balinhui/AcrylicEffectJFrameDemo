@@ -25,6 +25,7 @@ public class MicaEffectJFrame extends JFrame {
     ImageIcon mix_black = new FlatSVGIcon("remove_16dp_000000_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
     ImageIcon mix_gray = new FlatSVGIcon("remove_16dp_7A7A7A_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
 
+    private HWND hwnd;
     private final JLabel titleBar = createTitleBar();
     private final JButton exit = createControlButton(1, e -> System.exit(0));
     private final JButton max = createControlButton(2, e -> toggleMaximize());
@@ -38,6 +39,7 @@ public class MicaEffectJFrame extends JFrame {
         }
     };
 
+    int AccentState = 4;
     boolean onFocus = true;
     boolean onMax = false;
 
@@ -75,12 +77,10 @@ public class MicaEffectJFrame extends JFrame {
     }
 
     private void applyMicaEffect() {
-        HWND hwnd = new HWND(Native.getComponentPointer(this));
-
         AccentPolicy accent = new AccentPolicy();
-        accent.nAccentState = 4; //4或3
-        accent.nFlags = -0x20;
-        accent.nColor = 0x40FFFFFF;
+        accent.nAccentState = AccentState; //4或3
+        accent.nFlags = 0x20;
+        accent.nColor = 0x40f3f3f3;
         accent.nAnimationId = 0;
         accent.write();
 
@@ -115,6 +115,8 @@ public class MicaEffectJFrame extends JFrame {
         addWindowFocusListener(new WindowFocusListener() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
+                AccentState = 4;
+                applyMicaEffect();
                 onFocus = true;
                 titleBar.setForeground(Color.BLACK);
                 exit.setIcon(exit_black);
@@ -128,6 +130,8 @@ public class MicaEffectJFrame extends JFrame {
 
             @Override
             public void windowLostFocus(WindowEvent e) {
+                AccentState = 1;
+                applyMicaEffect();
                 onFocus = false;
                 titleBar.setForeground(new Color(122, 122, 122));
                 exit.setIcon(exit_gray);
@@ -239,7 +243,8 @@ public class MicaEffectJFrame extends JFrame {
         super.addNotify();
         addControlButton();
         addTitleBar();
-        EventQueue.invokeLater(this::applyMicaEffect);
+        hwnd = new HWND(Native.getComponentPointer(this));
+        applyMicaEffect();
     }
 
     @Override
