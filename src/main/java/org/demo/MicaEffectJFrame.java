@@ -1,6 +1,5 @@
 package org.demo;
 
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
