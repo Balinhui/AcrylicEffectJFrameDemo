@@ -24,6 +24,7 @@ public class test {
             frame.getContentPane().remove(button);
         });
 
+        frame.setResizable(true);
         frame.getContentPane().add(button);
         frame.getContentPane().add(label);
         frame.setVisible(true);

@@ -238,4 +238,10 @@ public class MicaEffectJFrame extends JFrame {
     public void setUndecorated(boolean setUndecorated) {
         super.setUndecorated(true);
     }
+
+    @Override
+    public void setResizable(boolean resizable) {
+        super.setResizable(resizable);
+        max.setEnabled(resizable);
+    }
 }
