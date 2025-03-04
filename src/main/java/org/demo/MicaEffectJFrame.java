@@ -27,9 +27,11 @@ public class MicaEffectJFrame extends JFrame {
         }
     };
 
-    int AccentState = 4;
-    boolean onFocus = true;
-    boolean onMax = false;
+    private int AccentState = 4;
+    private boolean onFocus = true;
+    private boolean onMax = false;
+
+    private static final Color notOnFocus = new Color(141, 142, 142);
 
     static {
         System.setProperty("jna.encoding", "UTF-8");
@@ -107,13 +109,6 @@ public class MicaEffectJFrame extends JFrame {
                 applyMicaEffect();
                 onFocus = true;
                 titleBar.setForeground(Color.BLACK);
-                /*exit.setIcon(exit_black);
-                if (onMax) {
-                    max.setIcon(max2_black);
-                } else {
-                    max.setIcon(max1_black);
-                }
-                mix.setIcon(mix_black);*/
                 exit.setForeground(Color.BLACK);
                 max.setForeground(Color.BLACK);
                 mix.setForeground(Color.BLACK);
@@ -124,28 +119,12 @@ public class MicaEffectJFrame extends JFrame {
                 AccentState = 1;
                 applyMicaEffect();
                 onFocus = false;
-                titleBar.setForeground(new Color(122, 122, 122));
-                /*exit.setIcon(exit_gray);
-                if (onMax) {
-                    max.setIcon(max2_gray);
-                } else {
-                    max.setIcon(max1_gray);
-                }
-                mix.setIcon(mix_gray);*/
-                exit.setForeground(Color.BLUE);
-                max.setForeground(Color.BLUE);
-                mix.setForeground(Color.BLUE);
+                titleBar.setForeground(notOnFocus);
+                exit.setForeground(notOnFocus);
+                max.setForeground(notOnFocus);
+                mix.setForeground(notOnFocus);
             }
         });
-
-        JButton test = new JButton("\uE654");
-        test.setFont(new Font("Segoe Fluent Icons", Font.PLAIN, 10));
-        test.setBounds(60, 60, 47, 50);
-        test.setOpaque(false);
-        test.setBorderPainted(false);
-        test.setFocusPainted(false);
-        //test.setContentAreaFilled(false);
-        ContentPane.add(test);
 
         ContentPane.setOpaque(false);
         setContentPane(ContentPane);
@@ -154,6 +133,7 @@ public class MicaEffectJFrame extends JFrame {
     private JButton createControlButton(String text, int style, ActionListener action) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe Fluent Icons", Font.PLAIN, 10));
+        button.setForeground(Color.BLACK);
         button.setBackground((style == 1) ? new Color(186, 41, 27) : new Color(219, 219, 219));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
@@ -164,10 +144,10 @@ public class MicaEffectJFrame extends JFrame {
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
+                button.setContentAreaFilled(true);
                 if (style == 1) {
                     button.setForeground(Color.WHITE);
                 }
-                button.setContentAreaFilled(true);
             }
 
             @Override
@@ -177,7 +157,7 @@ public class MicaEffectJFrame extends JFrame {
                     if (onFocus) {
                         button.setForeground(Color.BLACK);
                     } else {
-                        button.setForeground(Color.BLUE);
+                        button.setForeground(notOnFocus);
                     }
                 }
             }
