@@ -14,22 +14,11 @@ import java.awt.event.*;
 import java.util.List;
 
 public class MicaEffectJFrame extends JFrame {
-    ClassLoader classLoader = MicaEffectJFrame.class.getClassLoader();
-    ImageIcon exit_black = new FlatSVGIcon("close_16dp_1F1F1F_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
-    ImageIcon exit_white = new FlatSVGIcon("close_16dp_FFFFFF_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
-    ImageIcon exit_gray = new FlatSVGIcon("close_16dp_7A7A7A_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
-    ImageIcon max1_black = new FlatSVGIcon("check_box_outline_blank_16dp_000000_FILL0_wght400_GRAD0_opsz20.svg", 14, 14, classLoader);
-    ImageIcon max1_gray = new FlatSVGIcon("check_box_outline_blank_16dp_7A7A7A_FILL0_wght400_GRAD0_opsz20.svg", 14, 14, classLoader);
-    ImageIcon max2_black = new FlatSVGIcon("settings_backup_restore_16dp_000000_FILL0_wght400_GRAD0_opsz20.svg", 17, 17, classLoader);
-    ImageIcon max2_gray = new FlatSVGIcon("settings_backup_restore_16dp_7A7A7A_FILL0_wght400_GRAD0_opsz20.svg", 17, 17, classLoader);
-    ImageIcon mix_black = new FlatSVGIcon("remove_16dp_000000_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
-    ImageIcon mix_gray = new FlatSVGIcon("remove_16dp_7A7A7A_FILL0_wght400_GRAD0_opsz20.svg", 20, 20, classLoader);
-
     private HWND hwnd;
     private final JLabel titleBar = createTitleBar();
-    private final JButton exit = createControlButton(1, e -> System.exit(0));
-    private final JButton max = createControlButton(2, e -> toggleMaximize());
-    private final JButton mix = createControlButton(3, e -> setExtendedState(ICONIFIED));
+    private final JButton exit = createControlButton("\uE653", 1, e -> System.exit(0));
+    private final JButton max = createControlButton("\uE655",2, e -> toggleMaximize());
+    private final JButton mix = createControlButton("\uE654", 3, e -> setExtendedState(ICONIFIED));
     private final JPanel ContentPane = new JPanel() {
         @Override
         protected void paintComponent(Graphics g) {
@@ -103,10 +92,10 @@ public class MicaEffectJFrame extends JFrame {
         addWindowStateListener(e -> {
             if (!onMax) {
                 onMax = true;
-                max.setIcon(max2_black);
+                max.setText("\uE656");
             } else {
                 onMax = false;
-                max.setIcon(max1_black);
+                max.setText("\uE655");
             }
             addControlButton();
             addTitleBar();
@@ -119,13 +108,16 @@ public class MicaEffectJFrame extends JFrame {
                 applyMicaEffect();
                 onFocus = true;
                 titleBar.setForeground(Color.BLACK);
-                exit.setIcon(exit_black);
+                /*exit.setIcon(exit_black);
                 if (onMax) {
                     max.setIcon(max2_black);
                 } else {
                     max.setIcon(max1_black);
                 }
-                mix.setIcon(mix_black);
+                mix.setIcon(mix_black);*/
+                exit.setForeground(Color.BLACK);
+                max.setForeground(Color.BLACK);
+                mix.setForeground(Color.BLACK);
             }
 
             @Override
@@ -134,30 +126,35 @@ public class MicaEffectJFrame extends JFrame {
                 applyMicaEffect();
                 onFocus = false;
                 titleBar.setForeground(new Color(122, 122, 122));
-                exit.setIcon(exit_gray);
+                /*exit.setIcon(exit_gray);
                 if (onMax) {
                     max.setIcon(max2_gray);
                 } else {
                     max.setIcon(max1_gray);
                 }
-                mix.setIcon(mix_gray);
+                mix.setIcon(mix_gray);*/
+                exit.setForeground(Color.BLUE);
+                max.setForeground(Color.BLUE);
+                mix.setForeground(Color.BLUE);
             }
         });
+
+        JButton test = new JButton("\uE654");
+        test.setFont(new Font("Segoe Fluent Icons", Font.PLAIN, 10));
+        test.setBounds(60, 60, 47, 50);
+        test.setOpaque(false);
+        test.setBorderPainted(false);
+        test.setFocusPainted(false);
+        //test.setContentAreaFilled(false);
+        ContentPane.add(test);
 
         ContentPane.setOpaque(false);
         setContentPane(ContentPane);
     }
 
-    private JButton createControlButton(int style, ActionListener action) {
-        JButton button = new JButton();
-        button.setOpaque(false);
-        if (style == 1) {
-            button.setIcon(exit_black);
-        } else if (style == 2) {
-            button.setIcon(max1_black);
-        } else if (style == 3) {
-            button.setIcon(mix_black);
-        }
+    private JButton createControlButton(String text, int style, ActionListener action) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe Fluent Icons", Font.PLAIN, 10));
         button.setBackground((style == 1) ? new Color(186, 41, 27) : new Color(219, 219, 219));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
@@ -169,7 +166,7 @@ public class MicaEffectJFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (style == 1) {
-                    button.setIcon(exit_white);
+                    button.setForeground(Color.WHITE);
                 }
                 button.setContentAreaFilled(true);
             }
@@ -179,9 +176,9 @@ public class MicaEffectJFrame extends JFrame {
                 button.setContentAreaFilled(false);
                 if (style == 1) {
                     if (onFocus) {
-                        button.setIcon(exit_black);
+                        button.setForeground(Color.BLACK);
                     } else {
-                        button.setIcon(exit_gray);
+                        button.setForeground(Color.BLUE);
                     }
                 }
             }
