@@ -13,11 +13,20 @@ import java.awt.event.*;
 import java.util.List;
 
 public class MicaEffectJFrame extends JFrame {
+    /**
+     * 储存窗口的句柄，在窗口显示可见时获取值
+     */
     private HWND hwnd;
+    /**
+     * 窗口的标题栏，负责拖动和存放`Title`和三个控制按钮
+     */
     private final JLabel titleBar = createTitleBar();
     private final JButton exit = createControlButton("\uE653", 1, e -> System.exit(0));
     private final JButton max = createControlButton("\uE655",2, e -> toggleMaximize());
     private final JButton mix = createControlButton("\uE654", 3, e -> setExtendedState(ICONIFIED));
+    /**
+     * 窗口的根面板
+     */
     private final JPanel ContentPane = new JPanel() {
         @Override
         protected void paintComponent(Graphics g) {
@@ -27,14 +36,26 @@ public class MicaEffectJFrame extends JFrame {
         }
     };
 
+    /**
+     * 窗口状态的取值，1为空白面板，3为亚克力，4为Win11云母效果
+     */
     private int AccentState = 4;
+    /**
+     * 记录窗口是否在焦点的值
+     */
     private boolean onFocus = true;
+    /**
+     * 记录窗口是否最大化的值
+     */
     private boolean onMax = false;
 
     private static final Color notOnFocus = new Color(141, 142, 142);
 
     static {
         System.setProperty("jna.encoding", "UTF-8");
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            throw new RuntimeException("系统不支持");
+        }
     }
 
     public interface User32 extends Library {
@@ -68,7 +89,7 @@ public class MicaEffectJFrame extends JFrame {
 
     private void applyMicaEffect() {
         AccentPolicy accent = new AccentPolicy();
-        accent.nAccentState = AccentState; //4或3
+        accent.nAccentState = AccentState;
         accent.nFlags = 0x20;
         accent.nColor = 0x40f3f3f3;
         accent.nAnimationId = 0;
@@ -84,6 +105,11 @@ public class MicaEffectJFrame extends JFrame {
     }
 
     public MicaEffectJFrame() {
+        initializeUI();
+    }
+
+    public MicaEffectJFrame(String title) {
+        this.setTitle(title);
         initializeUI();
     }
 
@@ -214,6 +240,9 @@ public class MicaEffectJFrame extends JFrame {
         }
     }
 
+    /**
+     * 在确保窗口已经创建好后为其添加组件以及获取句柄，并为其启用效果
+     */
     @Override
     public void addNotify() {
         super.addNotify();
@@ -234,14 +263,35 @@ public class MicaEffectJFrame extends JFrame {
         this.titleBar.setText(title);
     }
 
+    /**
+     * 防止修改`undecorated`参数
+     * @param undecorated {@code true} if no frame decorations are to be
+     *         enabled; {@code false} if frame decorations are to be enabled
+     *
+     */
     @Override
-    public void setUndecorated(boolean setUndecorated) {
+    public void setUndecorated(boolean undecorated) {
         super.setUndecorated(true);
     }
 
+    /**
+     * 禁止改变大小时，禁用`max`按钮
+     * @param resizable   {@code true} if this frame is resizable;
+     *                       {@code false} otherwise.
+     */
     @Override
     public void setResizable(boolean resizable) {
         super.setResizable(resizable);
         max.setEnabled(resizable);
+    }
+
+    /**
+     * `height + 28`是为了给标题栏留出位置
+     * @param width the new width of this component in pixels
+     * @param height the new height of this component in pixels
+     */
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(width, height + 28);
     }
 }
