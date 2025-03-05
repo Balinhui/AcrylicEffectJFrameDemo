@@ -1,5 +1,5 @@
 ## 展示
-[demo](./Pictures/demo.png)
+<img src="./Pictures/demo.png" alt="image-20241217173028697" style="zoom: 30%;" />
 
 ## 介绍
 这是一个带有Win11云母效果的JFrame，test.java说明如何使用
