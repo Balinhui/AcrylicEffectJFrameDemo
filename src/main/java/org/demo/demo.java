@@ -3,7 +3,7 @@ package org.demo;
 import javax.swing.*;
 import java.awt.*;
 
-public class test {
+public class demo {
 
     public static void main(String[] args) {
         MicaEffectJFrame frame = new MicaEffectJFrame();

@@ -43,7 +43,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        org.demo.test
+                                        org.demo.demo
                                     </mainClass>
                                 </manifest>
                             </archive>
