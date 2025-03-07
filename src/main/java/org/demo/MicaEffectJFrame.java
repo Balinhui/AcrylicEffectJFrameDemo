@@ -18,6 +18,7 @@ public class MicaEffectJFrame extends JFrame {
      * Stores the handle of the window, and gets the value when the window is visible
      */
     private HWND hwnd;
+
     /**
      * 窗口的标题栏，负责拖动和存放`Title`和三个控制按钮
      * The title bar of the window, which is responsible for dragging and storing the 'Title' and the three control buttons
@@ -26,6 +27,7 @@ public class MicaEffectJFrame extends JFrame {
     private final JButton exit = createControlButton("\uE653", 1, e -> System.exit(0));
     private final JButton max = createControlButton("\uE655",2, e -> toggleMaximize());
     private final JButton mix = createControlButton("\uE654", 3, e -> setExtendedState(ICONIFIED));
+
     /**
      * 窗口的根面板
      * The root panel of the window
@@ -44,16 +46,24 @@ public class MicaEffectJFrame extends JFrame {
      * The value of the window state, 1 is the blank panel, 3 is Acrylic, and 4 is the Win11 Mica effect
      */
     private int AccentState = 4;
+
     /**
      * 记录窗口是否在焦点的值
      * The value of recording whether the window is in focus
      */
     private boolean onFocus = true;
+
     /**
      * 记录窗口是否最大化的值
      * The value of recording whether the window is maximized
      */
     private boolean onMax = false;
+
+    /**
+     * 记录鼠标位置，拖动窗口
+     * Record the mouse position, drag the window
+     */
+    private static Point dragStart;
 
     private static final Color notOnFocus = new Color(141, 142, 142);
 
@@ -211,8 +221,6 @@ public class MicaEffectJFrame extends JFrame {
         return button;
     }
 
-    int xOld = 0;
-    int yOld = 0;
     private JLabel createTitleBar() {
         JLabel label = new JLabel();
         label.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -220,18 +228,14 @@ public class MicaEffectJFrame extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                xOld = e.getX();
-                yOld = e.getY();
+                dragStart = e.getPoint();
             }
         });
         label.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                int xOnScreen = e.getXOnScreen();
-                int yOnScreen = e.getYOnScreen();
-                int xx = xOnScreen - xOld;
-                int yy = yOnScreen - yOld;
-                setLocation(xx, yy);
+                Point current = e.getLocationOnScreen();
+                setLocation(current.x - dragStart.x, current.y - dragStart.y);
             }
         });
         return label;
