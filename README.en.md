@@ -1,6 +1,9 @@
 ## Warning
 This solution sacrifices the cross-platform nature of JFrame and has low performance, so it should not be used in a production environment, and is for reference only
 
+## Readme.md
+zh [Chinese 中文](README.md)
+
 ## Show
 <img src="./Pictures/demo.png" alt="image-20241217173028697" style="zoom: 30%;" />
 
