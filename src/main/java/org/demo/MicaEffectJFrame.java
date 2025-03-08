@@ -421,8 +421,8 @@ public class MicaEffectJFrame extends JFrame {
         }
 
         // 设置最小窗口尺寸 Sets the minimum window size
-        if (bounds.width < 100) bounds.width = 100;
-        if (bounds.height < 100) bounds.height = 100;
+        if (bounds.width < 200) bounds.width = 200;
+        if (bounds.height < 200) bounds.height = 200;
 
         setBounds(bounds);
     }
