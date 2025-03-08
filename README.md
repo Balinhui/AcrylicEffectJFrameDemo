@@ -12,4 +12,4 @@ en [English 英文](README.en.md)
 
 使用JNA第三方库实现
 
-JNA负责调用WindowsAPI来实现云母效果，接口继承Library，用`SetWindowCompositionAttribute`方法实现
+JNA负责调用`Windows API`来实现云母效果，接口继承`Library`，用`SetWindowCompositionAttribute`方法实现

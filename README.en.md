@@ -12,4 +12,4 @@ This is a JFrame with Win11 mica effects, demo.java instructions on how to use i
 
 Implemented using JNA libraries
 
-JNA is responsible for calling the Windows API to implement the mica effect, and the interface inherits from the Library, which is implemented using the `SetWindowCompositionAttribute` method
+JNA is responsible for calling the `Windows API` to implement the mica effect, and the interface inherits from the `Library`, which is implemented using the `SetWindowCompositionAttribute` method
