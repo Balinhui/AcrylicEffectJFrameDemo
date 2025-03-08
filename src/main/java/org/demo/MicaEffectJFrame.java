@@ -283,6 +283,11 @@ public class MicaEffectJFrame extends JFrame {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point current = e.getLocationOnScreen();
+                if (onMax) {
+                    onMax = false;
+                    setExtendedState(NORMAL);
+                    max.setText("\uE655");
+                }
                 setLocation(current.x - dragStart.x, current.y - dragStart.y);
             }
         });
@@ -305,7 +310,7 @@ public class MicaEffectJFrame extends JFrame {
 
     private void toggleMaximize() {
         if ((getExtendedState() & MAXIMIZED_BOTH) == 0) {
-            // 保存原始尺寸
+            // 保存原始尺寸 Save the original dimensions
             setExtendedState(MAXIMIZED_BOTH);
         } else {
             setExtendedState(NORMAL);
