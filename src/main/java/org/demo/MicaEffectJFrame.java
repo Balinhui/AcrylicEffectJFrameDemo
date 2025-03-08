@@ -63,7 +63,19 @@ public class MicaEffectJFrame extends JFrame {
      * 记录鼠标位置，拖动窗口
      * Record the mouse position, drag the window
      */
-    private static Point dragStart;
+    private Point dragStart;
+
+    /**
+     * 记录窗口大小
+     * Record the size of the window
+     */
+    private Rectangle startBounds;
+
+    /**
+     * 检测边框的灵敏度（像素）
+     * Detect the sensitivity of the bezel(pixel)
+     */
+    private final int resizeMargin = 8;
 
     private static final Color notOnFocus = new Color(141, 142, 142);
 
@@ -146,6 +158,7 @@ public class MicaEffectJFrame extends JFrame {
     private void initializeUI() {
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
+        //窗口最大最小化 max and minimize
         addWindowStateListener(e -> {
             if (!onMax) {
                 onMax = true;
@@ -179,6 +192,41 @@ public class MicaEffectJFrame extends JFrame {
                 exit.setForeground(notOnFocus);
                 max.setForeground(notOnFocus);
                 mix.setForeground(notOnFocus);
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                startBounds = getBounds();
+                dragStart = e.getLocationOnScreen();
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            // 记录鼠标的位置 Record the position of the mouse
+            int edge = -1;
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                updateCursor(e.getPoint(), getSize());
+                edge = getEdgeType(e.getPoint(), getSize());
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (startBounds == null && edge == -1) {
+                    return;
+                }
+
+                Point current = e.getLocationOnScreen();
+                int dx = current.x - dragStart.x;
+                int dy = current.y - dragStart.y;
+
+                // 根据鼠标位置判断调整方向 Adjust the direction according to the position of the mouse
+                adjustWindowBounds(edge, dx, dy);
+                addControlButton();
+                addTitleBar();
             }
         });
 
@@ -262,6 +310,121 @@ public class MicaEffectJFrame extends JFrame {
         } else {
             setExtendedState(NORMAL);
         }
+    }
+
+    /**
+     * 更新鼠标样式
+     * Update mouse styles
+     * @param mousePos 鼠标位置 Mouse position
+     * @param size 窗口大小 Window size
+     */
+    private void updateCursor(Point mousePos, Dimension size) {
+        int edgeType = getEdgeType(mousePos, size);
+        switch (edgeType) {
+            case Cursor.N_RESIZE_CURSOR:
+            case Cursor.S_RESIZE_CURSOR:
+                setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+                break;
+            case Cursor.E_RESIZE_CURSOR:
+            case Cursor.W_RESIZE_CURSOR:
+                setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+                break;
+            case Cursor.NE_RESIZE_CURSOR:
+            case Cursor.SW_RESIZE_CURSOR:
+                setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
+                break;
+            case Cursor.NW_RESIZE_CURSOR:
+            case Cursor.SE_RESIZE_CURSOR:
+                setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
+                break;
+            default:
+                setCursor(Cursor.getDefaultCursor());
+        }
+    }
+
+    /**
+     * 判断鼠标位于哪个边缘或角落
+     * Determine which edge or corner the mouse is on
+     * @param mousePos 鼠标位置 Mouse position
+     * @param size 窗口大小 Window size
+     * @return 鼠标位于边框位置的值 The value of the mouse at the position of the border
+     */
+    private int getEdgeType(Point mousePos, Dimension size) {
+        int x = mousePos.x;
+        int y = mousePos.y;
+        int width = size.width;
+        int height = size.height;
+
+        boolean isNorth = y < resizeMargin;
+        boolean isSouth = y > height - resizeMargin;
+        boolean isWest = x < resizeMargin;
+        boolean isEast = x > width - resizeMargin;
+
+        if (isNorth && isWest) return Cursor.NW_RESIZE_CURSOR;
+        if (isNorth && isEast) return Cursor.NE_RESIZE_CURSOR;
+        if (isSouth && isWest) return Cursor.SW_RESIZE_CURSOR;
+        if (isSouth && isEast) return Cursor.SE_RESIZE_CURSOR;
+        if (isNorth) return Cursor.N_RESIZE_CURSOR;
+        if (isSouth) return Cursor.S_RESIZE_CURSOR;
+        if (isWest) return Cursor.W_RESIZE_CURSOR;
+        if (isEast) return Cursor.E_RESIZE_CURSOR;
+
+        return -1; // 不在边缘
+    }
+
+    /**
+     * 根据方向调整窗口尺寸
+     * Adjust the window size according to the orientation
+     * @param edgeType 鼠标位于边框位置的值 The value of the mouse at the position of the border
+     * @param dx 鼠标在x轴上的移动 Movement of the mouse on the x-axis
+     * @param dy 鼠标在y轴上的移动 Movement of the mouse on the y-axis
+     */
+    private void adjustWindowBounds(int edgeType, int dx, int dy) {
+        Rectangle bounds = new Rectangle(startBounds);
+        switch (edgeType) {
+            case Cursor.N_RESIZE_CURSOR:
+                bounds.y += dy;
+                bounds.height -= dy;
+                break;
+            case Cursor.S_RESIZE_CURSOR:
+                bounds.height += dy;
+                break;
+            case Cursor.W_RESIZE_CURSOR:
+                bounds.x += dx;
+                bounds.width -= dx;
+                break;
+            case Cursor.E_RESIZE_CURSOR:
+                bounds.width += dx;
+                break;
+            case Cursor.NW_RESIZE_CURSOR:
+                bounds.x += dx;
+                bounds.width -= dx;
+                bounds.y += dy;
+                bounds.height -= dy;
+                break;
+            case Cursor.NE_RESIZE_CURSOR:
+                bounds.width += dx;
+                bounds.y += dy;
+                bounds.height -= dy;
+                break;
+            case Cursor.SW_RESIZE_CURSOR:
+                bounds.x += dx;
+                bounds.width -= dx;
+                bounds.height += dy;
+                break;
+            case Cursor.SE_RESIZE_CURSOR:
+                bounds.width += dx;
+                bounds.height += dy;
+                break;
+            default:
+                return;
+        }
+
+        // 设置最小窗口尺寸 Sets the minimum window size
+        if (bounds.width < 100) bounds.width = 100;
+        if (bounds.height < 100) bounds.height = 100;
+
+        setBounds(bounds);
     }
 
     /**
