@@ -242,6 +242,7 @@ public class MicaEffectJFrame extends JFrame {
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         button.addActionListener(action);
 
         // 悬停效果
