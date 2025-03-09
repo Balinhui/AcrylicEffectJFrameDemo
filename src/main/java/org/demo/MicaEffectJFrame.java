@@ -150,6 +150,17 @@ public class MicaEffectJFrame extends JFrame {
         initializeUI();
     }
 
+    public MicaEffectJFrame(GraphicsConfiguration gc) {
+        super(gc);
+        initializeUI();
+    }
+
+    public MicaEffectJFrame(String title, GraphicsConfiguration gc) {
+        super(gc);
+        this.setTitle(title);
+        initializeUI();
+    }
+
     /**
      * 初始化窗口，为窗口去掉装饰，设置透明背景，添加三个控制按钮，添加监听
      * Initialize the window, remove the decoration from the window,
