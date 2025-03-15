@@ -71,6 +71,10 @@ public class AcrylicEffectJFrame extends JFrame {
      */
     private final int resizeMargin = 8;
 
+    /**
+     * 记录窗口是否能改变大小的值
+     * Records whether the window can change the value of the size
+     */
     protected boolean resizable = true;
 
     private static final Color notOnFocus = new Color(141, 142, 142);
@@ -82,8 +86,10 @@ public class AcrylicEffectJFrame extends JFrame {
         }
     }
 
-    public interface DWMAttributes {
+    public interface DWMWINDOWATTRIBUTE {
         int DWMWA_SYSTEMBACKDROP_TYPE = 38;  // Windows 11 新增的云母材质属性
+
+        int DWMWA_WINDOW_CORNER_PREFERENCE = 33; //设置圆角
     }
 
     public interface DWM_SYSTEMBACKDROP_TYPE {
@@ -99,6 +105,18 @@ public class AcrylicEffectJFrame extends JFrame {
 
         @Deprecated
         int DWMSBT_TABBEDWINDOW = 4;       // 标签页材质
+    }
+
+    public interface DWM_WINDOW_CORNER_PREFERENCE {
+        @Deprecated
+        int DWMWCP_DEFAULT = 0;
+
+        @Deprecated
+        int DWMWCP_DONOTROUND = 1;
+        int DWMWCP_ROUND = 2;
+
+        @Deprecated
+        int DWMWCP_ROUNDSMALL = 3;
     }
 
     public interface DwmApi extends StdCallLibrary {
@@ -135,11 +153,15 @@ public class AcrylicEffectJFrame extends JFrame {
         margins.cyTopHeight = -1;
         margins.cyBottomHeight = -1;
 
-        IntByReference ref = new IntByReference(DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW);
+        IntByReference effectRef = new IntByReference(DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW);
+
+        IntByReference roundRef = new IntByReference(DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND);
 
         DwmApi.INSTANCE.DwmExtendFrameIntoClientArea(hWnd, margins);
 
-        DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMAttributes.DWMWA_SYSTEMBACKDROP_TYPE, ref, 4);
+        DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, effectRef, 4);
+
+        DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, roundRef, 4);
     }
 
     /**
