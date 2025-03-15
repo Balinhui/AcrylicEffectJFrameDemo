@@ -1,15 +1,15 @@
 package org.demo;
 
-import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.WinDef.HWND;
-import com.sun.jna.win32.W32APIOptions;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.win32.StdCallLibrary;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class MicaEffectJFrame extends JFrame {
@@ -17,7 +17,7 @@ public class MicaEffectJFrame extends JFrame {
      * 储存窗口的句柄，在窗口显示可见时获取值
      * Stores the handle of the window, and gets the value when the window is visible
      */
-    private HWND hwnd;
+    private static HWND hWnd;
 
     /**
      * 窗口的标题栏，负责拖动和存放`Title`和三个控制按钮
@@ -40,12 +40,6 @@ public class MicaEffectJFrame extends JFrame {
             g.fillRect(0, 0, getWidth(), getHeight());
         }
     };
-
-    /**
-     * 窗口状态的取值，1为空白面板，3为亚克力，4为Win11云母效果
-     * The value of the window state, 1 is the blank panel, 3 is Acrylic, and 4 is the Win11 Mica effect
-     */
-    private int AccentState = 4;
 
     /**
      * 记录窗口是否在焦点的值
@@ -77,6 +71,8 @@ public class MicaEffectJFrame extends JFrame {
      */
     private final int resizeMargin = 8;
 
+    protected boolean resizable = true;
+
     private static final Color notOnFocus = new Color(141, 142, 142);
 
     static {
@@ -86,50 +82,64 @@ public class MicaEffectJFrame extends JFrame {
         }
     }
 
-    public interface User32 extends Library {
-        User32 INSTANCE = Native.load("user32", User32.class, W32APIOptions.DEFAULT_OPTIONS);
-        void SetWindowCompositionAttribute(HWND hWnd, WindowCompositionAttributeData data);
-        int WCA_ACCENT_POLICY = 19;
+    public interface DWMAttributes {
+        int DWMWA_SYSTEMBACKDROP_TYPE = 38;  // Windows 11 新增的云母材质属性
     }
 
-    public static class AccentPolicy extends Structure {
-        public int nAccentState;
-        public int nFlags;
-        public int nColor;
-        public int nAnimationId;
+    public interface DWM_SYSTEMBACKDROP_TYPE {
+        @Deprecated
+        int DWMSBT_AUTO = 0;               // 系统默认
+
+        @Deprecated
+        int DWMSBT_NONE = 1;               // 无材质
+
+        @Deprecated
+        int DWMSBT_MAINWINDOW = 2;         // 云母材质（主窗口）
+        int DWMSBT_TRANSIENTWINDOW = 3;    // 亚克力材质（弹出窗口）
+
+        @Deprecated
+        int DWMSBT_TABBEDWINDOW = 4;       // 标签页材质
+    }
+
+    public interface DwmApi extends StdCallLibrary {
+        DwmApi INSTANCE = Native.load("dwmapi", DwmApi.class);
+
+        void DwmExtendFrameIntoClientArea(HWND hWnd, MARGINS pMarInset);
+        void DwmSetWindowAttribute(HWND hWnd, int dwAttribute, IntByReference pvAttribute, int cbAttribute);
+    }
+
+    public static class MARGINS extends Structure {
+        public int cxLeftWidth;
+        public int cxRightWidth;
+        public int cyTopHeight;
+        public int cyBottomHeight;
 
         @Override
         protected List<String> getFieldOrder() {
-            return List.of("nAccentState", "nFlags", "nColor", "nAnimationId");
+            return Arrays.asList(
+                    "cxLeftWidth",
+                    "cxRightWidth",
+                    "cyTopHeight",
+                    "cyBottomHeight"
+            );
         }
     }
 
-    public static class WindowCompositionAttributeData extends Structure {
-        public int Attribute;
-        public Pointer Data;
-        public int SizeOfData;
-
-        @Override
-        protected List<String> getFieldOrder() {
-            return List.of("Attribute", "Data", "SizeOfData");
+    private void applyAcrylicEffect() {
+        if (hWnd == null) {
+            throw new NullPointerException("窗口句柄未成功获取");
         }
-    }
+        MARGINS margins = new MARGINS();
+        margins.cxLeftWidth = -1;
+        margins.cxRightWidth = -1;
+        margins.cyTopHeight = -1;
+        margins.cyBottomHeight = -1;
 
-    private void applyMicaEffect() {
-        AccentPolicy accent = new AccentPolicy();
-        accent.nAccentState = AccentState;
-        accent.nFlags = 0x20;
-        accent.nColor = 0x40f3f3f3;
-        accent.nAnimationId = 0;
-        accent.write();
+        IntByReference ref = new IntByReference(DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW);
 
-        WindowCompositionAttributeData data = new WindowCompositionAttributeData();
-        data.Attribute = User32.WCA_ACCENT_POLICY;
-        data.SizeOfData = accent.size();
-        data.Data = accent.getPointer();
-        data.write();
+        DwmApi.INSTANCE.DwmExtendFrameIntoClientArea(hWnd, margins);
 
-        User32.INSTANCE.SetWindowCompositionAttribute(hwnd, data);
+        DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMAttributes.DWMWA_SYSTEMBACKDROP_TYPE, ref, 4);
     }
 
     /**
@@ -185,8 +195,6 @@ public class MicaEffectJFrame extends JFrame {
         addWindowFocusListener(new WindowFocusListener() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                AccentState = 4;
-                addMica();
                 onFocus = true;
                 titleBar.setForeground(Color.BLACK);
                 exit.setForeground(Color.BLACK);
@@ -196,8 +204,6 @@ public class MicaEffectJFrame extends JFrame {
 
             @Override
             public void windowLostFocus(WindowEvent e) {
-                AccentState = 1;
-                addMica();
                 onFocus = false;
                 titleBar.setForeground(notOnFocus);
                 exit.setForeground(notOnFocus);
@@ -220,6 +226,9 @@ public class MicaEffectJFrame extends JFrame {
 
             @Override
             public void mouseMoved(MouseEvent e) {
+                if (!resizable) {
+                    return;
+                }
                 updateCursor(e.getPoint(), getSize());
                 edge = getEdgeType(e.getPoint(), getSize());
             }
@@ -449,8 +458,8 @@ public class MicaEffectJFrame extends JFrame {
      * Use SwingUtilities.invokeLater to ensure that the app effect
      * code is executed in the event dispatch thread
      */
-    private void addMica() {
-        EventQueue.invokeLater(this::applyMicaEffect);
+    private void addAcrylic() {
+        EventQueue.invokeLater(this::applyAcrylicEffect);
     }
 
     /**
@@ -463,8 +472,8 @@ public class MicaEffectJFrame extends JFrame {
         super.addNotify();
         addControlButton();
         addTitleBar();
-        hwnd = new HWND(Native.getComponentPointer(this));
-        addMica();
+        hWnd = new HWND(Native.getComponentPointer(this));
+        addAcrylic();
     }
 
     @Override
@@ -499,6 +508,7 @@ public class MicaEffectJFrame extends JFrame {
     @Override
     public void setResizable(boolean resizable) {
         super.setResizable(resizable);
+        this.resizable = resizable;
         max.setEnabled(resizable);
     }
 
