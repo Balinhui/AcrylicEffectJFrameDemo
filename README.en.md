@@ -5,11 +5,13 @@ This solution sacrifices the cross-platform nature of JFrame and has low perform
 zh [Chinese 中文](README.md)
 
 # Show
-<img src="./Pictures/demo.png" alt="image-20241217173028697" style="zoom: 30%;" />
+![](Pictures/demo.png)
 
 # Introduction
-This is a JFrame with Win11 mica effects, demo.java instructions on how to use it
+This is a JFrame with Acrylic effects, demo.java instructions on how to use it
 
 Implemented using JNA libraries
 
-JNA is responsible for calling the `Windows API` to implement the mica effect, and the interface inherits from the `Library`, which is implemented using the `SetWindowCompositionAttribute` method
+JNA is responsible for calling the `Windows API` to implement the Acrylic effect, and the interface inherits from the `StdCallLibrary`, loading a local `dwmapi` library. This is done by calling the `DwmExtendFrameIntoClientArea` and `DwmSetWindowAttribute` functions.
+
+See Microsoft [DwmExtendFrameIntoClientArea](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmextendframeintoclientarea)和[DwmSetWindowAttribute](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)

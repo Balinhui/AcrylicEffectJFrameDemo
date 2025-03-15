@@ -5,11 +5,13 @@
 en [English 英文](README.en.md)
 
 # 展示
-<img src="./Pictures/demo.png" alt="image-20241217173028697" style="zoom: 30%;" />
+![](Pictures/demo.png)
 
 # 介绍
-这是一个带有Win11云母效果的JFrame，demo.java说明如何使用
+这是一个带有亚克力效果的JFrame，demo.java说明如何使用
 
 使用JNA第三方库实现
 
-JNA负责调用`Windows API`来实现云母效果，接口继承`Library`，用`SetWindowCompositionAttribute`方法实现
+JNA负责调用`Windows API`来实现亚克力效果，接口继承`StdCallLibrary`，加载本地的`dwmapi`。通过调用`DwmExtendFrameIntoClientArea`和`DwmSetWindowAttribute`函数实现。
+
+见微软官方文档[DwmExtendFrameIntoClientArea](https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmextendframeintoclientarea)和[DwmSetWindowAttribute](https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)
