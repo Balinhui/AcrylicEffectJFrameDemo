@@ -6,7 +6,7 @@ import java.awt.*;
 public class demo {
 
     public static void main(String[] args) {
-        MicaEffectJFrame frame = new MicaEffectJFrame();
+        AcrylicEffectJFrame frame = new AcrylicEffectJFrame();
         frame.setTitle("Demo");
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);

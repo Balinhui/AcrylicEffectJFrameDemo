@@ -12,7 +12,7 @@ import java.awt.event.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class MicaEffectJFrame extends JFrame {
+public class AcrylicEffectJFrame extends JFrame {
     /**
      * 储存窗口的句柄，在窗口显示可见时获取值
      * Stores the handle of the window, and gets the value when the window is visible
@@ -146,7 +146,7 @@ public class MicaEffectJFrame extends JFrame {
      * 无参构造，将要初始化窗口
      * There is no parameter construction, and initialized the window
      */
-    public MicaEffectJFrame() {
+    public AcrylicEffectJFrame() {
         initializeUI();
     }
 
@@ -155,17 +155,17 @@ public class MicaEffectJFrame extends JFrame {
      * Name the window when it is initialized
      * @param title 窗口标题 The title of the window
      */
-    public MicaEffectJFrame(String title) {
+    public AcrylicEffectJFrame(String title) {
         this.setTitle(title);
         initializeUI();
     }
 
-    public MicaEffectJFrame(GraphicsConfiguration gc) {
+    public AcrylicEffectJFrame(GraphicsConfiguration gc) {
         super(gc);
         initializeUI();
     }
 
-    public MicaEffectJFrame(String title, GraphicsConfiguration gc) {
+    public AcrylicEffectJFrame(String title, GraphicsConfiguration gc) {
         super(gc);
         this.setTitle(title);
         initializeUI();
