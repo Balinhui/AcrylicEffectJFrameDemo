@@ -77,6 +77,11 @@ public class AcrylicEffectJFrame extends JFrame {
      */
     protected boolean resizable = true;
 
+    /**
+     * 记录标题栏高度的值（像素）
+     */
+    private int titlebarHeight = 29;
+
     private static final Color notOnFocus = new Color(141, 142, 142);
 
     static {
@@ -340,16 +345,16 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     private void addControlButton() {
-        exit.setBounds(getWidth() - 47, 0, 47, 29);
-        max.setBounds(getWidth() - 2 * 47, 0, 47, 29);
-        mix.setBounds(getWidth() - 3 * 47, 0, 47, 29);
+        exit.setBounds(getWidth() - 47, 0, 47, titlebarHeight);
+        max.setBounds(getWidth() - 2 * 47, 0, 47, titlebarHeight);
+        mix.setBounds(getWidth() - 3 * 47, 0, 47, titlebarHeight);
         ContentPane.add(exit);
         ContentPane.add(max);
         ContentPane.add(mix);
     }
 
     private void addTitleBar() {
-        titleBar.setBounds(8, 0, getWidth() - 149, 29);
+        titleBar.setBounds(8, 0, getWidth() - 149, titlebarHeight);
         ContentPane.add(titleBar);
     }
 
@@ -478,12 +483,32 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     /**
-     * 使用SwingUtilities.invokeLater来确保应用效果代码在事件分派线程中执行
-     * Use SwingUtilities.invokeLater to ensure that the app effect
+     * 使用<code>SwingUtilities.invokeLater</code>来确保应用效果代码在事件分派线程中执行
+     * Use <code>SwingUtilities.invokeLater</code> to ensure that the app effect
      * code is executed in the event dispatch thread
      */
     private void addAcrylic() {
         EventQueue.invokeLater(this::applyAcrylicEffect);
+    }
+
+    /**
+     * 设置标题栏的高度，输入的值的范围为 15 ~ 44，需要在<code>setSize</code>和<code>setVisible</code>之前设置。
+     * @param height 标题栏的高度
+     */
+    public void setTitlebarHeight(int height) {
+        if (15 <= height && 44 >= height) {
+            this.titlebarHeight = height;
+        } else {
+            throw new RuntimeException("标题栏高度设置错误, 应为15 ~ 44之间");
+        }
+    }
+
+    /**
+     * 获取标题栏高度
+     * @return 标题栏高度
+     */
+    public int getTitlebarHeight() {
+        return this.titlebarHeight;
     }
 
     /**
@@ -512,8 +537,8 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     /**
-     * 防止修改`undecorated`参数
-     * Prevent the 'undecorated' parameter from being modified
+     * 防止修改<code>undecorated</code>参数
+     * Prevent the <code>undecorated</code> parameter from being modified
      * @param undecorated {@code true} if no frame decorations are to be
      *         enabled; {@code false} if frame decorations are to be enabled
      *
@@ -524,8 +549,8 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     /**
-     * 禁止改变窗口大小时，禁用`max`按钮
-     * When disabling the change the size of window, disable the 'max' button
+     * 禁止改变窗口大小时，禁用<code>max</code>按钮
+     * When disabling the change the size of window, disable the <code>max</code> button
      * @param resizable   {@code true} if this frame is resizable;
      *                       {@code false} otherwise.
      */
@@ -537,13 +562,13 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     /**
-     * `height + 28`是为了给标题栏留出位置
-     * 'height + 28' is to make room for the title bar
+     * <code>height + 28</code>是为了给标题栏留出位置
+     * <code>height + 28</code> is to make room for the title bar
      * @param width the new width of this component in pixels
      * @param height the new height of this component in pixels
      */
     @Override
     public void setSize(int width, int height) {
-        super.setSize(width, height + 29);
+        super.setSize(width, height + titlebarHeight);
     }
 }

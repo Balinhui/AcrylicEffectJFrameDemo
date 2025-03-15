@@ -8,6 +8,7 @@ public class demo {
     public static void main(String[] args) {
         AcrylicEffectJFrame frame = new AcrylicEffectJFrame();
         frame.setTitle("Demo");
+        frame.setTitlebarHeight(30);
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);
         frame.getContentPane().setLayout(null);
