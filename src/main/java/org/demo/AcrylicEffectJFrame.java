@@ -340,16 +340,16 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     private void addControlButton() {
-        exit.setBounds(getWidth() - 47, 0, 47, 28);
-        max.setBounds(getWidth() - 2 * 47, 0, 47, 28);
-        mix.setBounds(getWidth() - 3 * 47, 0, 47, 28);
+        exit.setBounds(getWidth() - 47, 0, 47, 29);
+        max.setBounds(getWidth() - 2 * 47, 0, 47, 29);
+        mix.setBounds(getWidth() - 3 * 47, 0, 47, 29);
         ContentPane.add(exit);
         ContentPane.add(max);
         ContentPane.add(mix);
     }
 
     private void addTitleBar() {
-        titleBar.setBounds(7, 0, getWidth() - 163, 28);
+        titleBar.setBounds(8, 0, getWidth() - 149, 29);
         ContentPane.add(titleBar);
     }
 
@@ -544,6 +544,6 @@ public class AcrylicEffectJFrame extends JFrame {
      */
     @Override
     public void setSize(int width, int height) {
-        super.setSize(width, height + 28);
+        super.setSize(width, height + 29);
     }
 }
