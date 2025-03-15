@@ -159,8 +159,10 @@ public class AcrylicEffectJFrame extends JFrame {
 
         DwmApi.INSTANCE.DwmExtendFrameIntoClientArea(hWnd, margins);
 
+        //启用背景效果
         DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, effectRef, 4);
 
+        //启用圆角
         DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, roundRef, 4);
     }
 
