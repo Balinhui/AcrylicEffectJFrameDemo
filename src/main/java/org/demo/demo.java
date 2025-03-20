@@ -21,6 +21,7 @@ public class demo {
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.addActionListener(e -> {
+            frame.flashWindow(true);
             label.setText("你好！别来无恙啊！");
             frame.getContentPane().remove(button);
         });

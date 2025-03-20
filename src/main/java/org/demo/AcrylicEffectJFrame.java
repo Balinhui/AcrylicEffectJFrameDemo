@@ -1,7 +1,6 @@
 package org.demo;
 
 import com.sun.jna.Native;
-import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.StdCallLibrary;
@@ -9,8 +8,6 @@ import com.sun.jna.win32.StdCallLibrary;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
-import java.util.List;
 
 public class AcrylicEffectJFrame extends JFrame {
     /**
@@ -24,9 +21,9 @@ public class AcrylicEffectJFrame extends JFrame {
      * The title bar of the window, which is responsible for dragging and storing the 'Title' and the three control buttons
      */
     private final JLabel titleBar = createTitleBar();
-    private final JButton exit = createControlButton("\uE653", 1, e -> System.exit(0));
+    private final JButton exit = createControlButton("\uE653", 1, e -> exit());
     private final JButton max = createControlButton("\uE655",2, e -> toggleMaximize());
-    private final JButton mix = createControlButton("\uE654", 3, e -> setExtendedState(ICONIFIED));
+    private final JButton mix = createControlButton("\uE654", 3, e -> mix());
 
     /**
      * 窗口的根面板
@@ -91,12 +88,14 @@ public class AcrylicEffectJFrame extends JFrame {
         }
     }
 
+    //见https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
     public interface DWMWINDOWATTRIBUTE {
         int DWMWA_SYSTEMBACKDROP_TYPE = 38;  // Windows 11 新增的云母材质属性
 
         int DWMWA_WINDOW_CORNER_PREFERENCE = 33; //设置圆角
     }
 
+    //见https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/ne-dwmapi-dwm_systembackdrop_type
     public interface DWM_SYSTEMBACKDROP_TYPE {
         @Deprecated
         int DWMSBT_AUTO = 0;               // 系统默认
@@ -112,6 +111,7 @@ public class AcrylicEffectJFrame extends JFrame {
         int DWMSBT_TABBEDWINDOW = 4;       // 标签页材质
     }
 
+    //见https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/ne-dwmapi-dwm_window_corner_preference
     public interface DWM_WINDOW_CORNER_PREFERENCE {
         @Deprecated
         int DWMWCP_DEFAULT = 0;
@@ -127,48 +127,33 @@ public class AcrylicEffectJFrame extends JFrame {
     public interface DwmApi extends StdCallLibrary {
         DwmApi INSTANCE = Native.load("dwmapi", DwmApi.class);
 
-        void DwmExtendFrameIntoClientArea(HWND hWnd, MARGINS pMarInset);
+        //见https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute
         void DwmSetWindowAttribute(HWND hWnd, int dwAttribute, IntByReference pvAttribute, int cbAttribute);
     }
 
-    public static class MARGINS extends Structure {
-        public int cxLeftWidth;
-        public int cxRightWidth;
-        public int cyTopHeight;
-        public int cyBottomHeight;
+    public interface User32 extends StdCallLibrary {
+        User32 INSTANCE = Native.load("user32", User32.class);
 
-        @Override
-        protected List<String> getFieldOrder() {
-            return Arrays.asList(
-                    "cxLeftWidth",
-                    "cxRightWidth",
-                    "cyTopHeight",
-                    "cyBottomHeight"
-            );
-        }
+        //见https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-flashwindow
+        boolean FlashWindow(HWND hWnd, boolean bInvert);
     }
 
     private void applyAcrylicEffect() {
         if (hWnd == null) {
-            throw new NullPointerException("窗口句柄未成功获取");
+            throw new RuntimeException("窗口句柄未成功获取");
         }
-        MARGINS margins = new MARGINS();
-        margins.cxLeftWidth = -1;
-        margins.cxRightWidth = -1;
-        margins.cyTopHeight = -1;
-        margins.cyBottomHeight = -1;
 
         IntByReference effectRef = new IntByReference(DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW);
 
         IntByReference roundRef = new IntByReference(DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND);
-
-        DwmApi.INSTANCE.DwmExtendFrameIntoClientArea(hWnd, margins);
 
         //启用背景效果
         DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, effectRef, 4);
 
         //启用圆角
         DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, roundRef, 4);
+
+        //flashWindow(true);
     }
 
     /**
@@ -358,6 +343,10 @@ public class AcrylicEffectJFrame extends JFrame {
         ContentPane.add(titleBar);
     }
 
+    private void mix() {
+        setExtendedState(ICONIFIED);
+    }
+
     private void toggleMaximize() {
         if ((getExtendedState() & MAXIMIZED_BOTH) == 0) {
             // 保存原始尺寸 Save the original dimensions
@@ -365,6 +354,10 @@ public class AcrylicEffectJFrame extends JFrame {
         } else {
             setExtendedState(NORMAL);
         }
+    }
+
+    private void exit() {
+        System.exit(0);
     }
 
     /**
@@ -509,6 +502,16 @@ public class AcrylicEffectJFrame extends JFrame {
      */
     public int getTitlebarHeight() {
         return this.titlebarHeight;
+    }
+
+    public void flashWindow(boolean bInvent) {
+        if (hWnd == null) {
+            throw new RuntimeException("窗口句柄未获取");
+        }
+        boolean state = User32.INSTANCE.FlashWindow(hWnd, bInvent);
+        if (!state && bInvent) {
+            System.err.println("窗口闪烁失败");
+        }
     }
 
     /**
