@@ -17,8 +17,8 @@ public class AcrylicEffectJFrame extends JFrame {
     private static HWND hWnd;
 
     /**
-     * 窗口的标题栏，负责拖动和存放`Title`和三个控制按钮
-     * The title bar of the window, which is responsible for dragging and storing the 'Title' and the three control buttons
+     * 窗口的标题栏，负责拖动和存放<code>Title</code>和三个控制按钮
+     * The title bar of the window, which is responsible for dragging and storing the <code>Title</code> and the three control buttons
      */
     private final JLabel titleBar = createTitleBar();
     private final JButton exit = createControlButton("\uE653", 1, e -> exit());
@@ -52,7 +52,7 @@ public class AcrylicEffectJFrame extends JFrame {
 
     /**
      * 记录鼠标位置，拖动窗口
-     * Record the mouse position, drag the window
+     * Record the mouse position, use to drag the window
      */
     private Point dragStart;
 
@@ -105,6 +105,7 @@ public class AcrylicEffectJFrame extends JFrame {
 
         @Deprecated
         int DWMSBT_MAINWINDOW = 2;         // 云母材质（主窗口）
+
         int DWMSBT_TRANSIENTWINDOW = 3;    // 亚克力材质（弹出窗口）
 
         @Deprecated
@@ -152,8 +153,6 @@ public class AcrylicEffectJFrame extends JFrame {
 
         //启用圆角
         DwmApi.INSTANCE.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, roundRef, 4);
-
-        //flashWindow(true);
     }
 
     /**
@@ -511,6 +510,14 @@ public class AcrylicEffectJFrame extends JFrame {
         boolean state = User32.INSTANCE.FlashWindow(hWnd, bInvent);
         if (!state && bInvent) {
             System.err.println("窗口闪烁失败");
+        }
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (!onFocus) {
+            flashWindow(true);
         }
     }
 
