@@ -7,6 +7,7 @@ public class demo {
 
     public static void main(String[] args) {
         AcrylicEffectJFrame frame = new AcrylicEffectJFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Demo");
         frame.setTitlebarHeight(30);
         frame.setSize(800, 600);

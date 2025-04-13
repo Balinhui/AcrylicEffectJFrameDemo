@@ -21,9 +21,9 @@ public class AcrylicEffectJFrame extends JFrame {
      * The title bar of the window, which is responsible for dragging and storing the <code>Title</code> and the three control buttons
      */
     private final JLabel titleBar = createTitleBar();
-    private final JButton exit = createControlButton("\uE653", 1, e -> exit());
-    private final JButton max = createControlButton("\uE655",2, e -> toggleMaximize());
-    private final JButton mix = createControlButton("\uE654", 3, e -> mix());
+    private final JButton exit = createControlButton("\uE653", 1, "关闭", e -> exit());
+    private final JButton max = createControlButton("\uE655",2, "最大化", e -> toggleMaximize());
+    private final JButton mix = createControlButton("\uE654", 3, "最小化", e -> mix());
 
     /**
      * 窗口的根面板
@@ -79,6 +79,13 @@ public class AcrylicEffectJFrame extends JFrame {
      */
     private int titlebarHeight = 29;
 
+    private int defaultCloseOperation = HIDE_ON_CLOSE;
+
+    /**
+     * 记录按下的鼠标按键
+     */
+    private int ButtonNum = MouseEvent.NOBUTTON;
+
     private static final Color notOnFocus = new Color(141, 142, 142);
 
     static {
@@ -115,14 +122,43 @@ public class AcrylicEffectJFrame extends JFrame {
     //见https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/ne-dwmapi-dwm_window_corner_preference
     public interface DWM_WINDOW_CORNER_PREFERENCE {
         @Deprecated
-        int DWMWCP_DEFAULT = 0;
+        int DWMWCP_DEFAULT = 0;            //默认边角
 
         @Deprecated
-        int DWMWCP_DONOTROUND = 1;
-        int DWMWCP_ROUND = 2;
+        int DWMWCP_DONOTROUND = 1;         //禁止圆角
+        int DWMWCP_ROUND = 2;              //大圆角
 
         @Deprecated
-        int DWMWCP_ROUNDSMALL = 3;
+        int DWMWCP_ROUNDSMALL = 3;         //小圆角
+    }
+
+    public interface SHOW_WINDOW {
+        int SW_HIDE = 0;          //隐藏窗口并激活另一个窗口
+
+        int SW_SHOWNORMAL = 1;    //激活并显示窗口。 如果窗口最小化、最大化或排列，系统会将其还原到其原始大小和位置。 应用程序应在首次显示窗口时指定此标志
+        int SW_NORMAL = 1;  	  //上同
+
+        int SW_SHOWMINIMIZED = 2; //激活窗口并将其显示为最小化窗口。
+
+        int SW_SHOWMAXIMIZED = 3; //激活窗口并显示最大化的窗口。
+        int SW_MAXIMIZE = 3;	  //上同
+
+        int SW_SHOWNOACTIVATE = 4;//以最近的大小和位置显示窗口。 此值类似于 SW_SHOWNORMAL，只是窗口未激活。
+
+        int SW_SHOW = 5;	      //激活窗口并以当前大小和位置显示窗口。
+
+        int SW_MINIMIZE = 6;	  //最小化指定的窗口，并按 Z 顺序激活下一个顶级窗口。
+
+        int SW_SHOWMINNOACTIVE = 7;//将窗口显示为最小化窗口。 此值类似于 SW_SHOWMINIMIZED，但窗口未激活。
+
+        int SW_SHOWNA = 8;	      //以当前大小和位置显示窗口。 此值类似于 SW_SHOW，只是窗口未激活。
+
+        int SW_RESTORE = 9;	      //激活并显示窗口。 如果窗口最小化、最大化或排列，系统会将其还原到其原始大小和位置。 还原最小化窗口时，应用程序应指定此标志。
+
+        int SW_SHOWDEFAULT = 10;  //根据启动应用程序的程序传递给 CreateProcess 函数的 STARTUPINFO 结构中指定的SW_值设置显示状态。
+
+        int SW_FORCEMINIMIZE = 11;//最小化窗口，即使拥有窗口的线程没有响应。 仅当最小化不同线程的窗口时，才应使用此标志。
+
     }
 
     public interface DwmApi extends StdCallLibrary {
@@ -137,6 +173,9 @@ public class AcrylicEffectJFrame extends JFrame {
 
         //见https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-flashwindow
         boolean FlashWindow(HWND hWnd, boolean bInvert);
+
+        //https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-showwindow
+        boolean ShowWindow(HWND hWnd, int nCmdShow);
     }
 
     private void applyAcrylicEffect() {
@@ -197,9 +236,11 @@ public class AcrylicEffectJFrame extends JFrame {
             if (!onMax) {
                 onMax = true;
                 max.setText("\uE656");
+                max.setToolTipText("向下还原");
             } else {
                 onMax = false;
                 max.setText("\uE655");
+                max.setToolTipText("最大化");
             }
             addControlButton();
             addTitleBar();
@@ -228,6 +269,7 @@ public class AcrylicEffectJFrame extends JFrame {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                ButtonNum = e.getButton();
                 startBounds = getBounds();
                 dragStart = e.getLocationOnScreen();
             }
@@ -239,18 +281,17 @@ public class AcrylicEffectJFrame extends JFrame {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (!resizable) {
-                    return;
-                }
+                if (!resizable) return;
+
                 updateCursor(e.getPoint(), getSize());
                 edge = getEdgeType(e.getPoint(), getSize());
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (startBounds == null && edge == -1) {
-                    return;
-                }
+                if (edge == -1) return;
+                if (startBounds ==null) return;
+                if (ButtonNum != MouseEvent.BUTTON1) return;
 
                 Point current = e.getLocationOnScreen();
                 int dx = current.x - dragStart.x;
@@ -267,7 +308,7 @@ public class AcrylicEffectJFrame extends JFrame {
         setContentPane(ContentPane);
     }
 
-    private JButton createControlButton(String text, int style, ActionListener action) {
+    private JButton createControlButton(String text, int style, String tip, ActionListener action) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe Fluent Icons", Font.PLAIN, 10));
         button.setForeground(Color.BLACK);
@@ -277,6 +318,7 @@ public class AcrylicEffectJFrame extends JFrame {
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         button.addActionListener(action);
+        button.setToolTipText(tip);
 
         // 悬停效果
         button.addMouseListener(new MouseAdapter() {
@@ -310,12 +352,15 @@ public class AcrylicEffectJFrame extends JFrame {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                ButtonNum = e.getButton();
                 dragStart = e.getPoint();
             }
         });
         label.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                if (ButtonNum != MouseEvent.BUTTON1) return;
+
                 Point current = e.getLocationOnScreen();
                 if (onMax) {
                     onMax = false;
@@ -348,7 +393,6 @@ public class AcrylicEffectJFrame extends JFrame {
 
     private void toggleMaximize() {
         if ((getExtendedState() & MAXIMIZED_BOTH) == 0) {
-            // 保存原始尺寸 Save the original dimensions
             setExtendedState(MAXIMIZED_BOTH);
         } else {
             setExtendedState(NORMAL);
@@ -356,7 +400,15 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     private void exit() {
-        System.exit(0);
+        if (defaultCloseOperation == EXIT_ON_CLOSE) {
+            removeAll();
+            System.exit(0);
+        } else if (defaultCloseOperation == DISPOSE_ON_CLOSE) {
+            dispose();
+        } else if (defaultCloseOperation == HIDE_ON_CLOSE) {
+            //hide window
+            showWindow(SHOW_WINDOW.SW_HIDE);
+        }
     }
 
     /**
@@ -513,6 +565,16 @@ public class AcrylicEffectJFrame extends JFrame {
         }
     }
 
+    private void showWindow(int nCmdShow) {
+        if (hWnd == null) {
+            throw new RuntimeException("窗口句柄未获取");
+        }
+        boolean state = User32.INSTANCE.ShowWindow(hWnd, nCmdShow);
+        if (!state) {
+            System.err.println("show失败");
+        }
+    }
+
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
@@ -580,5 +642,11 @@ public class AcrylicEffectJFrame extends JFrame {
     @Override
     public void setSize(int width, int height) {
         super.setSize(width, height + titlebarHeight);
+    }
+
+    @Override
+    public void setDefaultCloseOperation(int operation) {
+        super.setDefaultCloseOperation(operation);
+        defaultCloseOperation = operation;
     }
 }

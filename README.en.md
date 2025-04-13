@@ -12,6 +12,6 @@ This is a JFrame with Acrylic effects, demo.java instructions on how to use it
 
 Implemented using JNA libraries
 
-JNA is responsible for calling the `Windows API` to implement the Acrylic effect, and the interface inherits from the `StdCallLibrary`, loading a local `dwmapi` library. This is done by calling the `DwmExtendFrameIntoClientArea` and `DwmSetWindowAttribute` functions.
+JNA is responsible for calling the `Windows API` to implement the Acrylic effect, and the interface inherits from the `StdCallLibrary`, loading a local `dwmapi` library. This is done by calling the `DwmSetWindowAttribute` functions.
 
-See Microsoft [DwmExtendFrameIntoClientArea](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmextendframeintoclientarea)和[DwmSetWindowAttribute](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)
+See Microsoft [DwmSetWindowAttribute](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)

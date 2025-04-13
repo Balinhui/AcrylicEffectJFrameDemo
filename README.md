@@ -12,6 +12,6 @@ en [English 英文](README.en.md)
 
 使用JNA第三方库实现
 
-JNA负责调用`Windows API`来实现亚克力效果，接口继承`StdCallLibrary`，加载本地的`dwmapi`。通过调用`DwmExtendFrameIntoClientArea`和`DwmSetWindowAttribute`函数实现。
+JNA负责调用`Windows API`来实现亚克力效果，接口继承`StdCallLibrary`，加载本地的`dwmapi`。通过调用`DwmSetWindowAttribute`函数实现。
 
-见微软官方文档[DwmExtendFrameIntoClientArea](https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmextendframeintoclientarea)和[DwmSetWindowAttribute](https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)
+见微软官方文档[DwmSetWindowAttribute](https://learn.microsoft.com/zh-cn/windows/win32/api/dwmapi/nf-dwmapi-dwmsetwindowattribute)
