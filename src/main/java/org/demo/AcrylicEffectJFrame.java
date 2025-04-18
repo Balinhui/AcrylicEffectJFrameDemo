@@ -196,7 +196,7 @@ public class AcrylicEffectJFrame extends JFrame {
 
     /**
      * 无参构造，将要初始化窗口
-     * There is no parameter construction, and initialized the window
+     * There is no parameter construction, and will initialize the window
      */
     public AcrylicEffectJFrame() {
         initializeUI();
@@ -355,18 +355,19 @@ public class AcrylicEffectJFrame extends JFrame {
                 ButtonNum = e.getButton();
                 dragStart = e.getPoint();
             }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) toggleMaximize();
+            }
         });
         label.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (ButtonNum != MouseEvent.BUTTON1) return;
+                if (onMax) toggleMaximize();
 
                 Point current = e.getLocationOnScreen();
-                if (onMax) {
-                    onMax = false;
-                    setExtendedState(NORMAL);
-                    max.setText("\uE655");
-                }
                 setLocation(current.x - dragStart.x, current.y - dragStart.y);
             }
         });
@@ -401,7 +402,6 @@ public class AcrylicEffectJFrame extends JFrame {
 
     private void exit() {
         if (defaultCloseOperation == EXIT_ON_CLOSE) {
-            removeAll();
             System.exit(0);
         } else if (defaultCloseOperation == DISPOSE_ON_CLOSE) {
             dispose();
