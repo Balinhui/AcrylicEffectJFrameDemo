@@ -132,7 +132,7 @@ public class AcrylicEffectJFrame extends JFrame {
         }
 
         public static void initForEnglish() {
-            close = "close";
+            close = "close ";
             maximize = "maximize";
             minimize = "minimize";
             restore = "restore";
