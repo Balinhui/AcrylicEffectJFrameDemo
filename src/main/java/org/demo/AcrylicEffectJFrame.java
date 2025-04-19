@@ -21,9 +21,9 @@ public class AcrylicEffectJFrame extends JFrame {
      * The title bar of the window, which is responsible for dragging and storing the <code>Title</code> and the three control buttons
      */
     private final JLabel titleBar = createTitleBar();
-    private final JButton exit = createControlButton("\uE653", 1, "关闭", e -> exit());
-    private final JButton max = createControlButton("\uE655",2, "最大化", e -> toggleMaximize());
-    private final JButton mix = createControlButton("\uE654", 3, "最小化", e -> mix());
+    private final JButton close = createControlButton("\uE653", 1, LANGUAGE_SUPPORT.close, e -> exit());
+    private final JButton maximize = createControlButton("\uE655",2, LANGUAGE_SUPPORT.maximize, e -> toggleMaximize());
+    private final JButton minimize = createControlButton("\uE654", 3, LANGUAGE_SUPPORT.minimize, e -> mix());
 
     /**
      * 窗口的根面板
@@ -90,8 +90,57 @@ public class AcrylicEffectJFrame extends JFrame {
 
     static {
         System.setProperty("jna.encoding", "UTF-8");
+        if (System.getProperty("user.language").equals("en")) {
+            LANGUAGE_SUPPORT.initForEnglish();
+        } else if (System.getProperty("user.language").equals("zh")) {
+            LANGUAGE_SUPPORT.initForChinese();
+        }
         if (!System.getProperty("os.name").startsWith("Windows")) {
-            throw new RuntimeException("系统不支持");
+            throw new RuntimeException(LANGUAGE_SUPPORT.systemDoesNotSupport);
+        }
+    }
+
+    public static class LANGUAGE_SUPPORT {
+        static String close;
+
+        static String maximize;
+
+        static String minimize;
+
+        static String restore;
+
+        static String systemDoesNotSupport;
+
+        static String titlebarSettingIncorrect;
+
+        static String hWndGet;
+
+        static String windowFlash;
+
+        static String showWindow;
+
+        public static void initForChinese() {
+            close = "关闭";
+            maximize = "最大化";
+            minimize = "最小化";
+            restore = "向下还原";
+            systemDoesNotSupport = "系统不支持";
+            titlebarSettingIncorrect = "标题栏高度设置错误, 应为15 ~ 44之间";
+            hWndGet = "窗口句柄未获取";
+            windowFlash = "窗口闪烁失败";
+            showWindow = "show失败";
+        }
+
+        public static void initForEnglish() {
+            close = "close";
+            maximize = "maximize";
+            minimize = "minimize";
+            restore = "restore";
+            systemDoesNotSupport = "The system does not support it";
+            titlebarSettingIncorrect = "Title bar height setting is incorrect, it should be between 15 and 44";
+            hWndGet = "The hWnd is not retrieved";
+            windowFlash = "Window flashing failed";
+            showWindow = "Showing window failed";
         }
     }
 
@@ -180,7 +229,7 @@ public class AcrylicEffectJFrame extends JFrame {
 
     private void applyAcrylicEffect() {
         if (hWnd == null) {
-            throw new RuntimeException("窗口句柄未成功获取");
+            throw new RuntimeException(LANGUAGE_SUPPORT.hWndGet);
         }
 
         IntByReference effectRef = new IntByReference(DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW);
@@ -235,12 +284,12 @@ public class AcrylicEffectJFrame extends JFrame {
         addWindowStateListener(e -> {
             if (!onMax) {
                 onMax = true;
-                max.setText("\uE656");
-                max.setToolTipText("向下还原");
+                maximize.setText("\uE656");
+                maximize.setToolTipText(LANGUAGE_SUPPORT.restore);
             } else {
                 onMax = false;
-                max.setText("\uE655");
-                max.setToolTipText("最大化");
+                maximize.setText("\uE655");
+                maximize.setToolTipText(LANGUAGE_SUPPORT.maximize);
             }
             addControlButton();
             addTitleBar();
@@ -251,18 +300,18 @@ public class AcrylicEffectJFrame extends JFrame {
             public void windowGainedFocus(WindowEvent e) {
                 onFocus = true;
                 titleBar.setForeground(Color.BLACK);
-                exit.setForeground(Color.BLACK);
-                max.setForeground(Color.BLACK);
-                mix.setForeground(Color.BLACK);
+                close.setForeground(Color.BLACK);
+                maximize.setForeground(Color.BLACK);
+                minimize.setForeground(Color.BLACK);
             }
 
             @Override
             public void windowLostFocus(WindowEvent e) {
                 onFocus = false;
                 titleBar.setForeground(notOnFocus);
-                exit.setForeground(notOnFocus);
-                max.setForeground(notOnFocus);
-                mix.setForeground(notOnFocus);
+                close.setForeground(notOnFocus);
+                maximize.setForeground(notOnFocus);
+                minimize.setForeground(notOnFocus);
             }
         });
 
@@ -375,12 +424,12 @@ public class AcrylicEffectJFrame extends JFrame {
     }
 
     private void addControlButton() {
-        exit.setBounds(getWidth() - 47, 0, 47, titlebarHeight);
-        max.setBounds(getWidth() - 2 * 47, 0, 47, titlebarHeight);
-        mix.setBounds(getWidth() - 3 * 47, 0, 47, titlebarHeight);
-        ContentPane.add(exit);
-        ContentPane.add(max);
-        ContentPane.add(mix);
+        close.setBounds(getWidth() - 47, 0, 47, titlebarHeight);
+        maximize.setBounds(getWidth() - 2 * 47, 0, 47, titlebarHeight);
+        minimize.setBounds(getWidth() - 3 * 47, 0, 47, titlebarHeight);
+        ContentPane.add(close);
+        ContentPane.add(maximize);
+        ContentPane.add(minimize);
     }
 
     private void addTitleBar() {
@@ -543,7 +592,7 @@ public class AcrylicEffectJFrame extends JFrame {
         if (15 <= height && 44 >= height) {
             this.titlebarHeight = height;
         } else {
-            throw new RuntimeException("标题栏高度设置错误, 应为15 ~ 44之间");
+            throw new RuntimeException(LANGUAGE_SUPPORT.titlebarSettingIncorrect);
         }
     }
 
@@ -557,21 +606,21 @@ public class AcrylicEffectJFrame extends JFrame {
 
     public void flashWindow(boolean bInvent) {
         if (hWnd == null) {
-            throw new RuntimeException("窗口句柄未获取");
+            throw new RuntimeException(LANGUAGE_SUPPORT.hWndGet);
         }
         boolean state = User32.INSTANCE.FlashWindow(hWnd, bInvent);
         if (!state && bInvent) {
-            System.err.println("窗口闪烁失败");
+            System.err.println(LANGUAGE_SUPPORT.windowFlash);
         }
     }
 
     private void showWindow(int nCmdShow) {
         if (hWnd == null) {
-            throw new RuntimeException("窗口句柄未获取");
+            throw new RuntimeException(LANGUAGE_SUPPORT.hWndGet);
         }
         boolean state = User32.INSTANCE.ShowWindow(hWnd, nCmdShow);
         if (!state) {
-            System.err.println("show失败");
+            System.err.println(LANGUAGE_SUPPORT.showWindow);
         }
     }
 
@@ -630,7 +679,7 @@ public class AcrylicEffectJFrame extends JFrame {
     public void setResizable(boolean resizable) {
         super.setResizable(resizable);
         this.resizable = resizable;
-        max.setEnabled(resizable);
+        maximize.setEnabled(resizable);
     }
 
     /**
